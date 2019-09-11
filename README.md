@@ -1,2 +1,1 @@
-# mytest
-&lt;del>垃圾场&lt;/del>
+<del>垃圾场</del>
