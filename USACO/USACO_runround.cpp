@@ -10,15 +10,6 @@ LANG: C++11
 
 using namespace std;
 
-bool same(vector<short>&num)
-{
-	bool sign = 0;
-	for (int i = 0; i < num.size(); i++)
-		for (int j = i + 1; j < num.size(); j++)
-			if (num[i] == num[j] || num[j] == 0)
-				sign = 1;
-	return sign;
-}
 bool r(vector<bool>&visited)
 {
 	bool sign = 0;
@@ -58,13 +49,20 @@ int main()
 		int temp = n;
 		bool s = 0;
 		vector<short> num;
+		vector<bool> d(10, 0);
 		while (temp != 0)
 		{
+			if (d[temp % 10] || temp % 10 == 0)
+			{
+				s = 1;
+				break;
+			}
+			d[temp % 10] = 1;
 			num.push_back(temp % 10);
 			temp /= 10;
 		}
 
-		if (same(num))
+		if (s == 1)
 			continue;
 
 		reverse(num.begin(), num.end());
