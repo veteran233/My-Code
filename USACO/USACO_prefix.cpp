@@ -52,23 +52,17 @@ int main()
 
 	vector<bool> dp(S.size() + 1, 0);
 	dp[0] = 1;
-	for (int i = 1; i <= S.size(); i++)
-	{
-		for (int j = i - 1; j >= 0; j--)
-		{
+	int index = 0;
+	for (int i = 1; i - pmax <= index && i <= S.size(); i++)
+		for (int j = i - 1; i - j <= pmax && j >= 0; j--)
 			if (dp[j] && patten(j, i))
 			{
 				dp[i] = 1;
+				index = i;
 				break;
 			}
-			if (i - j > pmax)
-				break;
-		}
-	}
 
-	int i = S.size();
-	for (; dp[i] == 0; i--);
-	fout << i << endl;
+	fout << index << endl;
 
 	return 0;
 }
