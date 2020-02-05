@@ -6,7 +6,6 @@ LANG: C++11
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
-#include <math.h>
 
 using namespace std;
 
@@ -24,12 +23,8 @@ int main()
 		dp[1][i] = 1;
 	for (int i = 3; i <= N; i += 2)
 		for (int j = 2; j <= K; j++)
-		{
 			for (int k = 1; k <= i - 1; k += 2)
-			{
 				dp[i][j] = (dp[i][j] + dp[i - 1 - k][j - 1] * dp[k][j - 1]) % 9901;
-			}
-		}
 
 	if (dp[N][K] - dp[N][K - 1] >= 0)
 		cout << dp[N][K] - dp[N][K - 1] << endl;
