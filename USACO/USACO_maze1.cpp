@@ -38,9 +38,9 @@ void around(str_node &node, const vector<string>&wall, const short &row, const s
 	if (wall[row][column + 1] == '|')
 		node.eastwall = 1;
 }
-void bfs(vector<vector<str_node>>&node, vector<vector<bool>>&visited, vector<vector<short>>&time)
+void bfs(const vector<vector<str_node>>&node, vector<vector<bool>>&visited, vector<vector<short>>&time)
 {
-	while (que.size() != 0)
+	while (!que.empty())
 	{
 		if (que[0].isexit)
 		{
@@ -91,8 +91,8 @@ void bfs(vector<vector<str_node>>&node, vector<vector<bool>>&visited, vector<vec
 
 int main()
 {
-	fstream fin("maze1.in");
-	fstream fout("maze1.out");
+	ifstream fin("maze1.in");
+	ofstream fout("maze1.out");
 
 	fin >> W >> H;
 	vector<string> wall(2 * H + 1);
@@ -141,6 +141,7 @@ int main()
 			node[(i - 1) / 2][(j - 1) / 2].column = (j - 1) / 2;
 			around(node[(i - 1) / 2][(j - 1) / 2], wall, i, j);
 		}
+
 	for (int i = 0; i < H; i++)
 		for (int j = 0; j < W; j++)
 		{
