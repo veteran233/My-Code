@@ -6,11 +6,21 @@ const int inf = 0x3f3f3f3f;
 const int max_vertex = 20;
 int weight[max_vertex][max_vertex];
 int dist[max_vertex];
+bool visited[max_vertex];
 
 void setweight(int a, int b, int w)
 {
 	weight[a][b] = w;
 	weight[b][a] = w;
+}
+int searchmin()
+{
+	int i = 0;
+	for (; visited[i]; i++);
+	for (int j = i + 1; j < max_vertex; j++)
+		if (!visited[j] && dist[i] > dist[j])
+			i = j;
+	return i;
 }
 int main()
 {
@@ -30,15 +40,24 @@ int main()
 	setweight(4, 5, 9);
 
 	for (int i = 0; i < max_vertex; i++)
+	{
 		dist[i] = inf;
+		visited[i] = 0;
+	}
 
 	int source = 0;
+	int numvisited = 0;
 	dist[source] = 0;
 
-	for (int i = 0; i < max_vertex; i++)
+	while (numvisited < max_vertex)
+	{
+		int i = searchmin();
+		visited[i] = 1;
 		for (int j = 0; j < max_vertex; j++)
-			if (dist[i] > dist[j] + weight[i][j])
-				dist[i] = dist[j] + weight[i][j];
+			if (dist[j] > dist[i] + weight[i][j])
+				dist[j] = dist[i] + weight[i][j];
+		numvisited++;
+	}
 
 	//cout dist[n] : the minimum distance from source to index n
 
