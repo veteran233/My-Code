@@ -37,10 +37,8 @@ int main()
 
 	for (int i = 0; i < max_vertex; i++)
 		for (int j = 0; j < max_vertex; j++)
-		{
 			if (dist[i] > dist[j] + weight[i][j])
 				dist[i] = dist[j] + weight[i][j];
-		}
 
 	//cout dist[n] : the distance from source to index n
 
