@@ -40,7 +40,7 @@ int main()
 			if (dist[i] > dist[j] + weight[i][j])
 				dist[i] = dist[j] + weight[i][j];
 
-	//cout dist[n] : the distance from source to index n
+	//cout dist[n] : the minimum distance from source to index n
 
 	return 0;
 }
