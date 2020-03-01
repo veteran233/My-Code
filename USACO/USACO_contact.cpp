@@ -146,13 +146,13 @@ int main()
 	}
 
 	if (point.size() < N)
-		for (int i = 0; i < point.size(); ++i)
+		for (int i = 0; i < point.size() && num[i] > 0; ++i)
 		{
 			fout << num[i] << endl;
 			for (int j = 1; j <= point[i].size(); ++j)
 			{
 				fout << *point[i][j - 1];
-				if (j % 6 != 0)
+				if (j % 6 != 0 && j != point[i].size())
 					fout << " ";
 				else if (j != point[i].size())
 					fout << "\n";
@@ -160,13 +160,13 @@ int main()
 			fout << "\n";
 		}
 	else
-		for (int i = 0; i < N; ++i)
+		for (int i = 0; i < N && num[i] > 0; ++i)
 		{
 			fout << num[i] << endl;
 			for (int j = 1; j <= point[i].size(); ++j)
 			{
 				fout << *point[i][j - 1];
-				if (j % 6 != 0)
+				if (j % 6 != 0 && j != point[i].size())
 					fout << " ";
 				else if (j != point[i].size())
 					fout << "\n";
