@@ -12,7 +12,6 @@ using namespace std;
 vector<int> speed(5);
 vector<vector<int>> wed_begin(5, vector<int>());
 vector<vector<int>> wed_range(5, vector<int>());
-int ans = 0;
 
 int main()
 {
