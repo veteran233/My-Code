@@ -9,109 +9,56 @@ LANG: C++11
 
 using namespace std;
 
-class wheel
-{
-public:
-	int deg_begin;
-	int deg_end;
-	int range;
-	int speed;
-	bool block[360];
-	wheel(int speed, int begin, int range)
-	{
-		this->speed = speed;
-		deg_begin = begin;
-		this->range = range;
-		deg_end = deg_begin + this->range;
-		if (deg_end >= 360)
-			deg_end -= 360;
-
-		if (deg_begin < deg_end)
-			for (int i = 0; i < 360; ++i)
-				if (deg_begin <= i && i <= deg_end)
-					block[i] = 1;
-				else
-					block[i] = 0;
-		else if (deg_begin == deg_end)
-			for (int i = 0; i < 360; ++i)
-				block[i] = 1;
-		else
-			for (int i = 0; i < 360; ++i)
-			{
-				if (0 <= i && i <= deg_end)
-				{
-					block[i] = 1;
-					continue;
-				}
-				if (deg_begin <= i && i < 360)
-				{
-					block[i] = 1;
-					continue;
-				}
-				block[i] = 0;
-			}
-	}
-	void spin()
-	{
-		if (deg_begin <= deg_end)
-			for (int i = deg_begin; i <= deg_end; ++i)
-				block[i] = 0;
-		else if (deg_begin == deg_end)
-			for (int i = 0; i < 360; ++i)
-				block[i] = 0;
-		else
-		{
-			for (int i = 0; i <= deg_end; ++i)
-				block[i] = 0;
-			for (int i = deg_begin; i < 360; ++i)
-				block[i] = 0;
-		}
-
-		deg_begin += speed;
-		deg_end += speed;
-		if (deg_begin >= 360)
-			deg_begin -= 360;
-		if (deg_end >= 360)
-			deg_begin -= 360;
-
-		if (deg_begin <= deg_end)
-			for (int i = deg_begin; i <= deg_end; ++i)
-				block[i] = 1;
-		else if (deg_begin == deg_end)
-			for (int i = 0; i < 360; ++i)
-				block[i] = 1;
-		else
-		{
-			for (int i = 0; i <= deg_end; ++i)
-				block[i] = 1;
-			for (int i = deg_begin; i < 360; ++i)
-				block[i] = 1;
-		}
-	}
-private:
-	int pri_deg_begin;
-	int pri_deg_end;
-};
-
-vector<wheel> whe;
+vector<int> speed(5);
+vector<vector<int>> wed_begin(5, vector<int>());
+vector<vector<int>> wed_range(5, vector<int>());
+int ans = 0;
 
 int main()
 {
 	freopen("spin.in", "r", stdin);
 	freopen("spin.out", "w", stdout);
 
-	int speed;
-	while (cin >> speed)
+	for (int i = 0; i < 5; ++i)
 	{
-		int num;
-		cin >> num;
-		for (int i = 0; i < num; ++i)
+		int sp, num;
+		cin >> sp >> num;
+		speed[i] = sp;
+		for (int j = 0; j < num; ++j)
 		{
-			int begin, range;
-			cin >> begin >> range;
-			whe.push_back(wheel(speed, begin, range));
+			int a, b;
+			cin >> a >> b;
+			wed_begin[i].push_back(a);
+			wed_range[i].push_back(b);
 		}
 	}
+
+	for (int i = 0; i <= 360; i++)
+	{
+		vector<int> time(360, 0);
+
+		for (int n = 0; n < 5; ++n)
+			for (int k = 0; k < wed_begin[n].size(); ++k)
+				for (int m = wed_begin[n][k] % 360;; m = (m + 1) % 360)
+				{
+					++time[m];
+					if (m == (wed_begin[n][k] + wed_range[n][k]) % 360)
+						break;
+				}
+
+		for (int n = 0; n < 360; ++n)
+			if (time[n] > 4)
+			{
+				cout << i << endl;
+				return 0;
+			}
+
+		for (int n = 0; n < 5; ++n)
+			for (int k = 0; k < wed_begin[n].size(); ++k)
+				wed_begin[n][k] = (wed_begin[n][k] + speed[n]) % 360;
+	}
+
+	cout << "none" << endl;
 
 	return 0;
 }
