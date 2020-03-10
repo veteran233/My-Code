@@ -16,12 +16,6 @@ int x3, y3, z3;
 int u1 = 0, u2 = 0, u3 = 0, goal_unit = 0;
 vector<vector<int>> ans;
 
-int gcd(int a, int b)
-{
-	if (a < b)
-		swap(a, b);
-	return b == 0 ? a : gcd(b, a%b);
-}
 bool cmp()
 {
 	if (goal_unit == 0)
