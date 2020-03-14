@@ -8,6 +8,7 @@ LANG: C++11
 #include <algorithm>
 #include <string>
 #include <deque>
+#include <string.h>
 
 using namespace std;
 
@@ -29,7 +30,6 @@ short init[2][4];
 short goal[2][4];
 bool visited[9][9][9][9][9][9][9][9];
 deque<way> queue;
-//set<int> s;
 string ansstr;
 int ans = 0x3f3f3f3f;
 
@@ -63,10 +63,6 @@ way C(way init_t)
 	init_t.str.push_back('C');
 	return init_t;
 }
-int vectoint(const way &test)
-{
-	return test.way_i[0][0] * 10000000 + test.way_i[0][1] * 1000000 + test.way_i[0][2] * 100000 + test.way_i[0][3] * 10000 + test.way_i[1][3] * 1000 + test.way_i[1][2] * 100 + test.way_i[1][1] * 10 + test.way_i[1][0];
-}
 bool martex(short a[2][4], short b[2][4])
 {
 	for (int i = 0; i < 2; ++i)
@@ -91,19 +87,15 @@ void bfs()
 				ansstr = test.str;
 		}
 
-		//s.insert(vectoint(test));
 		visited[test.way_i[0][0]][test.way_i[0][1]][test.way_i[0][2]][test.way_i[0][3]][test.way_i[1][3]][test.way_i[1][2]][test.way_i[1][1]][test.way_i[1][0]] = 1;
 		way wA = A(test);
 		way wB = B(test);
 		way wC = C(test);
 
-		//if (s.find(vectoint(wA)) == s.end() && (int)wA.str.size() < ans)
 		if (!visited[wA.way_i[0][0]][wA.way_i[0][1]][wA.way_i[0][2]][wA.way_i[0][3]][wA.way_i[1][3]][wA.way_i[1][2]][wA.way_i[1][1]][wA.way_i[1][0]] && (int)wA.str.size() < ans)
 			queue.push_back(A(test));
-		//if (s.find(vectoint(wB)) == s.end() && (int)wB.str.size() < ans)
 		if (!visited[wB.way_i[0][0]][wB.way_i[0][1]][wB.way_i[0][2]][wB.way_i[0][3]][wB.way_i[1][3]][wB.way_i[1][2]][wB.way_i[1][1]][wB.way_i[1][0]] && (int)wB.str.size() < ans)
 			queue.push_back(B(test));
-		//if (s.find(vectoint(wC)) == s.end() && (int)wC.str.size() < ans)
 		if (!visited[wC.way_i[0][0]][wC.way_i[0][1]][wC.way_i[0][2]][wC.way_i[0][3]][wC.way_i[1][3]][wC.way_i[1][2]][wC.way_i[1][1]][wC.way_i[1][0]] && (int)wC.str.size() < ans)
 			queue.push_back(C(test));
 	}
@@ -111,8 +103,8 @@ void bfs()
 
 int main()
 {
-	/*freopen("msquare.in", "r", stdin);
-	freopen("msquare.out", "w", stdout);*/
+	freopen("msquare.in", "r", stdin);
+	freopen("msquare.out", "w", stdout);
 
 	memset(visited, 0, sizeof(visited));
 
