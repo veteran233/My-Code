@@ -4,125 +4,147 @@ PROG: msquare
 LANG: C++11
 */
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
+#include <fstream>
 #include <algorithm>
-#include <string>
-#include <deque>
 #include <string.h>
+#include <deque>
 
 using namespace std;
 
-class way
+class square
 {
 public:
-	way() {}
-	way(short temp[2][4])
+	square() {}
+	square(bool sign)
 	{
-		for (int i = 0; i < 2; ++i)
-			for (int j = 0; j < 4; ++j)
-				way_i[i][j] = temp[i][j];
+		for (int i = 0; i < 8; ++i)
+			num[i] = i + 1;
 	}
-	short way_i[2][4];
+	short num[8];
 	string str;
 };
 
-short init[2][4];
-short goal[2][4];
-bool visited[9][9][9][9][9][9][9][9];
-deque<way> queue;
+bool visited[40320];
+short goal[8];
+deque<square> squ;
+int anscount = 0x3f3f3f3f;
 string ansstr;
-int ans = 0x3f3f3f3f;
 
-way A(way init_t)
+square A(square temp)
 {
-	for (int i = 0; i < 4; ++i)
-		swap(init_t.way_i[0][i], init_t.way_i[1][i]);
-	init_t.str.push_back('A');
-	return init_t;
+	reverse(temp.num, temp.num + 8);
+	temp.str.push_back('A');
+	return temp;
 }
-way B(way init_t)
+square B(square temp)
 {
-	reverse(init_t.way_i[0], init_t.way_i[0] + 3);
-	reverse(init_t.way_i[0], init_t.way_i[0] + 4);
-	reverse(init_t.way_i[1], init_t.way_i[1] + 3);
-	reverse(init_t.way_i[1], init_t.way_i[1] + 4);
-	init_t.str.push_back('B');
-	return init_t;
+	reverse(temp.num, temp.num + 3);
+	reverse(temp.num, temp.num + 4);
+	reverse(temp.num + 5, temp.num + 8);
+	reverse(temp.num + 4, temp.num + 8);
+	temp.str.push_back('B');
+	return temp;
 }
-way C(way init_t)
+square C(square temp)
 {
-	int a, b, c, d;
-	a = init_t.way_i[0][1];
-	b = init_t.way_i[0][2];
-	c = init_t.way_i[1][1];
-	d = init_t.way_i[1][2];
-	init_t.way_i[0][1] = c;
-	init_t.way_i[0][2] = a;
-	init_t.way_i[1][1] = d;
-	init_t.way_i[1][2] = b;
-	init_t.str.push_back('C');
-	return init_t;
+	short a = temp.num[1], b = temp.num[2], c = temp.num[5], d = temp.num[6];
+	temp.num[1] = d;
+	temp.num[2] = a;
+	temp.num[5] = b;
+	temp.num[6] = c;
+	temp.str.push_back('C');
+	return temp;
 }
-bool martex(short a[2][4], short b[2][4])
+int cantor(const square &temp)
 {
-	for (int i = 0; i < 2; ++i)
-		for (int j = 0; j < 4; ++j)
-			if (a[i][j] != b[i][j])
-				return 0;
+	static const short fact[8] = { 5760,720,120,24,6,3,1,1 };
+	static short a[8];
+	bool used[8] = { 0,0,0,0,0,0,0,0 };
+	int ret = 0;
+
+	for (int i = 0; i < 8; ++i)
+	{
+		short count = 0;
+		for (int j = 0; j < 8; ++j)
+			if (!used[j] && temp.num[i] > temp.num[j])
+				++count;
+
+		used[i] = 1;
+		a[i] = count;
+		ret += a[i] * fact[i];
+	}
+
+	return ret;
+}
+bool equality(const square &temp)
+{
+	for (int i = 0; i < 8; ++i)
+		if (temp.num[i] != goal[i])
+			return 0;
 	return 1;
 }
 void bfs()
 {
-	while (!queue.empty())
+	while (!squ.empty())
 	{
-		way test = *queue.begin();
-		queue.pop_front();
+		square temp = *squ.begin();
+		squ.pop_front();
 
-		if (martex(test.way_i, goal))
+		if (equality(temp))
 		{
-			ans = min(ans, (int)test.str.size());
-			if (ansstr != "")
-				ansstr = min(ansstr, test.str);
+			if (!ansstr.empty())
+				ansstr = min(ansstr, temp.str);
 			else
-				ansstr = test.str;
+				ansstr = temp.str;
+			anscount = (int)ansstr.size();
 		}
 
-		visited[test.way_i[0][0]][test.way_i[0][1]][test.way_i[0][2]][test.way_i[0][3]][test.way_i[1][3]][test.way_i[1][2]][test.way_i[1][1]][test.way_i[1][0]] = 1;
-		way wA = A(test);
-		way wB = B(test);
-		way wC = C(test);
+		square a = A(temp), b = B(temp), c = C(temp);
 
-		if (!visited[wA.way_i[0][0]][wA.way_i[0][1]][wA.way_i[0][2]][wA.way_i[0][3]][wA.way_i[1][3]][wA.way_i[1][2]][wA.way_i[1][1]][wA.way_i[1][0]] && (int)wA.str.size() < ans)
-			queue.push_back(A(test));
-		if (!visited[wB.way_i[0][0]][wB.way_i[0][1]][wB.way_i[0][2]][wB.way_i[0][3]][wB.way_i[1][3]][wB.way_i[1][2]][wB.way_i[1][1]][wB.way_i[1][0]] && (int)wB.str.size() < ans)
-			queue.push_back(B(test));
-		if (!visited[wC.way_i[0][0]][wC.way_i[0][1]][wC.way_i[0][2]][wC.way_i[0][3]][wC.way_i[1][3]][wC.way_i[1][2]][wC.way_i[1][1]][wC.way_i[1][0]] && (int)wC.str.size() < ans)
-			queue.push_back(C(test));
+		if (!visited[cantor(a)])
+		{
+			visited[cantor(a)] = 1;
+			if (anscount > (int)a.str.size())
+				squ.push_back(a);
+		}
+		if (!visited[cantor(b)])
+		{
+			visited[cantor(b)] = 1;
+			if (anscount > (int)b.str.size())
+				squ.push_back(b);
+		}
+		if (!visited[cantor(c)])
+		{
+			visited[cantor(c)] = 1;
+			if (anscount > (int)c.str.size())
+				squ.push_back(c);
+		}
 	}
 }
 
 int main()
 {
-	freopen("msquare.in", "r", stdin);
-	freopen("msquare.out", "w", stdout);
+	ifstream fin("msquare.in");
+	ofstream fout("msquare.out");
 
 	memset(visited, 0, sizeof(visited));
 
-	for (int i = 0; i < 4; ++i)
-		init[0][i] = i + 1;
-	for (int i = 3; i >= 0; --i)
-		init[1][i] = 8 - i;
+	for (int i = 0; i < 8; ++i)
+		fin >> goal[i];
 
-	for (int i = 0; i < 4; ++i)
-		cin >> goal[0][i];
-	for (int i = 3; i >= 0; --i)
-		cin >> goal[1][i];
-
-	queue.push_back(way(init));
+	squ.push_back(square(0));
 	bfs();
 
-	cout << ans << endl;
-	cout << ansstr << endl;
+	fout << anscount << endl;
+
+	int i = 0;
+	while (i < (int)ansstr.size())
+	{
+		fout << ansstr[i];
+		++i;
+		if (i % 60 == 0)
+			fout << "\n";
+	}
 
 	return 0;
 }
