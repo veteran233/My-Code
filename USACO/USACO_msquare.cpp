@@ -30,41 +30,47 @@ deque<square> squ;
 int anscount = 0x3f3f3f3f;
 string ansstr;
 
-square A(square temp)
+void A(square &temp)
 {
 	reverse(temp.num, temp.num + 8);
 	temp.str.push_back('A');
-	return temp;
 }
-square B(square temp)
+void B(square &temp)
 {
 	reverse(temp.num, temp.num + 3);
 	reverse(temp.num, temp.num + 4);
 	reverse(temp.num + 5, temp.num + 8);
 	reverse(temp.num + 4, temp.num + 8);
 	temp.str.push_back('B');
-	return temp;
 }
-square C(square temp)
+void C(square &temp)
 {
-	short a = temp.num[1], b = temp.num[2], c = temp.num[5], d = temp.num[6];
+	static short a, b, c, d;
+
+	a = temp.num[1];
+	b = temp.num[2];
+	c = temp.num[5];
+	d = temp.num[6];
 	temp.num[1] = d;
 	temp.num[2] = a;
 	temp.num[5] = b;
 	temp.num[6] = c;
 	temp.str.push_back('C');
-	return temp;
 }
 int cantor(const square &temp)
 {
-	static const short fact[8] = { 5760,720,120,24,6,3,1,1 };
+	static const short fact[8] = { 5040,720,120,24,6,2,1,1 };
 	static short a[8];
-	bool used[8] = { 0,0,0,0,0,0,0,0 };
-	int ret = 0;
+	static int ret;
+	static bool used[8];
+	static short count;
+
+	ret = 0;
+	memset(used, 0, sizeof(used));
 
 	for (int i = 0; i < 8; ++i)
 	{
-		short count = 0;
+		count = 0;
 		for (int j = 0; j < 8; ++j)
 			if (!used[j] && temp.num[i] > temp.num[j])
 				++count;
@@ -85,9 +91,11 @@ bool equality(const square &temp)
 }
 void bfs()
 {
+	static square temp;
 	while (!squ.empty())
 	{
-		square temp = *squ.begin();
+		temp = *squ.begin();
+
 		squ.pop_front();
 
 		if (equality(temp))
@@ -99,7 +107,8 @@ void bfs()
 			anscount = (int)ansstr.size();
 		}
 
-		square a = A(temp), b = B(temp), c = C(temp);
+		square a = temp, b = temp, c = temp;
+		A(a); B(b); C(c);
 
 		if (!visited[cantor(a)])
 		{
@@ -133,6 +142,7 @@ int main()
 		fin >> goal[i];
 
 	squ.push_back(square(0));
+	visited[cantor(*squ.begin()->num)] = 1;
 	bfs();
 
 	fout << anscount << endl;
@@ -142,9 +152,11 @@ int main()
 	{
 		fout << ansstr[i];
 		++i;
-		if (i % 60 == 0)
+		if (i % 60 == 0 && i != (int)ansstr.size())
 			fout << "\n";
 	}
+
+	fout << "\n";
 
 	return 0;
 }
