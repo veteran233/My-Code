@@ -15,6 +15,26 @@ vector<int> cow_pos;
 const int inf = 0x3f3f3f3f;
 int ans = inf;
 
+class cla_queue
+{
+public:
+	cla_queue(int i)
+	{
+		d = i;
+	}
+	int index;
+	int d;
+
+	bool operator <(const cla_queue&a)const
+	{
+		return this->d < a.d;
+	}
+	bool operator >(const cla_queue&a)const
+	{
+		return this->d > a.d;
+	}
+};
+
 int distsum(vector<int>&dist)
 {
 	int ret = 0;
@@ -52,31 +72,38 @@ int main()
 	}
 
 	int source = 0;
-	int mcount = 0;
-	while (mcount < P + 1)
+	int nv = 0;
+	while (nv < P + 1)
 	{
-		vector<int> dist(P + 1, inf);
-		vector<bool> visited(P + 1, 0);
+		//vector<bool> visited(P + 1, 0);
+		vector<int> truedist(P + 1, inf);
 
-		dist[source] = 0;
+		vector<cla_queue> dist(P + 1, cla_queue(inf));
+		for (int i = 0; i <= P; ++i)
+			dist[i].index = i;
 
-		int index = 0;
-		int count = 0;
-		while (count <= P)
+		dist[source].d = 0;
+
+		make_heap(dist.begin(), dist.end(), less<cla_queue>());
+
+		int numvisited = 0;
+		while (numvisited < P + 1)
 		{
-			for (; visited[index]; ++index);
-			int i = index;
-			for (int j = index + 1; j <= P; ++j)
-				if (!visited[j] && dist[i] > dist[j])
-					i = j;
-			visited[i] = 1;
+			int i = dist[0].index;
+
 			for (int j = 0; j <= P; ++j)
-				if (dist[j] > dist[i] + weight[i][j])
-					dist[j] = dist[i] + weight[i][j];
-			++count;
+				if (truedist[j] > truedist[i] + weight[i][j])
+				{
+					truedist[j] = truedist[i] + weight[i][j];
+					dist[j].d = dist[i].d + weight[i][j];
+				}
+
+			pop_heap(dist.begin(), dist.end(), less<cla_queue>());
+			++numvisited;
 		}
-		ans = min(ans, distsum(dist));
-		source = ++mcount;
+		ans = min(ans, distsum(truedist));
+		++source;
+		++nv;
 	}
 
 	cout << ans << endl;
