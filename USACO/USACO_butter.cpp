@@ -7,14 +7,21 @@ LANG: C++11
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include <list>
 
 using namespace std;
 
 int N, P, C;
-vector<int> cow_pos;
-const int inf = 0x3f3f3f3f;
-int ans = inf;
+int inf = 0x3f3f3f3f;
+vector<int> cowpos;
+vector<vector<int>> weight;
+vector<vector<int>> neighbor;
+vector<int> dist;
+vector<int> ans;
+
+bool cmp(int &a, int &b)
+{
+	return dist[a] > dist[b];
+}
 
 int main()
 {
@@ -22,18 +29,17 @@ int main()
 	freopen("butter.out", "w", stdout);
 
 	cin >> N >> P >> C;
+
+	cowpos.resize(N);
+	ans.resize(P + 1, 0);
+	weight.resize(P + 1);
+	neighbor.resize(P + 1);
+	for (int i = 0; i < P + 1; ++i)
+		weight[i].resize(P + 1, inf);
+
 	for (int i = 0; i < N; ++i)
-	{
-		int user_in;
-		cin >> user_in;
-		cow_pos.push_back(user_in);
-	}
+		cin >> cowpos[i];
 
-	vector<vector<int>> weight(P + 1, vector<int>(P + 1, inf));
-	vector<vector<int>> neighbor(P + 1);
-
-	for (int i = 0; i <= P; ++i)
-		weight[i][i] = 0;
 	for (int i = 0; i < C; ++i)
 	{
 		int a, b, c;
@@ -44,46 +50,50 @@ int main()
 		neighbor[b].push_back(a);
 	}
 
-	vector<vector<int>> dist(N, vector<int>(P + 1, inf));
-
-	for (int nv = 0; nv < N; ++nv)
+	for (int cow = 0; cow < N; cow++)
 	{
 		vector<bool> visited(P + 1, 0);
 		vector<bool> joined(P + 1, 0);
-		list<int> join;
+		vector<int> join;
 
-		dist[nv][cow_pos[nv]] = 0;
-		join.push_back(cow_pos[nv]);
+		dist.assign(P + 1, inf);
+
+		join.push_back(cowpos[cow]);
+		joined[cowpos[cow]] = 1;
+		dist[cowpos[cow]] = 0;
 
 		for (int numvisited = 0; numvisited < P; ++numvisited)
 		{
 			int i = *join.begin();
 
-			list<int>::iterator deletejoin = join.begin();
-			for (list<int>::iterator j = join.begin(); j != join.end(); ++j)
-				if (dist[nv][i] > dist[nv][*j])
-				{
-					i = *j;
-					deletejoin = j;
-				}
-
 			visited[i] = 1;
-			joined[i] = 1;
-			join.erase(deletejoin);
+			pop_heap(join.begin(), join.end(), cmp);
+			join.pop_back();
 
-			for (int t = 0; t < neighbor[i].size(); ++t)
-				if (!joined[neighbor[i][t]])
+			for (int j = 0; j < (int)neighbor[i].size(); ++j)
+				if (dist[neighbor[i][j]] > dist[i] + weight[i][neighbor[i][j]])
 				{
-					join.push_back(neighbor[i][t]);
-					joined[neighbor[i][t]] = 1;
+					dist[neighbor[i][j]] = dist[i] + weight[i][neighbor[i][j]];
+					vector<int>::iterator it = find(join.begin(), join.end(), neighbor[i][j]);
+					if (it != join.end())
+						push_heap(join.begin(), it + 1, cmp);
 				}
 
-			if (!neighbor[i].empty())
-				for (int j = 0; j < (int)neighbor[i].size(); ++j)
-					if (dist[nv][neighbor[i][j]] > dist[nv][i] + weight[i][neighbor[i][j]])
-						dist[nv][neighbor[i][j]] = dist[nv][i] + weight[i][neighbor[i][j]];
+			for (int j = 0; j < (int)neighbor[i].size(); ++j)
+				if (!joined[neighbor[i][j]])
+				{
+					join.push_back(neighbor[i][j]);
+					push_heap(join.begin(), join.end(), cmp);
+
+					joined[neighbor[i][j]] = 1;
+				}
 		}
+
+		for (int i = 0; i < P + 1; ++i)
+			ans[i] = ans[i] + dist[i] >= inf ? inf : ans[i] + dist[i];
 	}
+
+	cout << *min_element(ans.begin(), ans.end()) << endl;
 
 	return 0;
 }
