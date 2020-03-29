@@ -16,7 +16,7 @@ public:
 	vector<int> num;
 	cla_offer()
 	{
-		num.resize(5, -1);
+		num.resize(5, 0);
 	}
 	void setoffer(int c, int n)
 	{
@@ -27,9 +27,9 @@ public:
 class cla_item
 {
 public:
-	int code;
-	int num;
-	int price;
+	int code = 0x3f3f3f3f;
+	int num = 0;
+	int price = 0;
 	bool operator<(cla_item&t)
 	{
 		return this->code < t.code;
@@ -38,22 +38,23 @@ public:
 
 int inf = 0x3f3f3f3f;
 vector<cla_offer> offer;
-vector<cla_item> item;
+vector<cla_item> item(5);
 int dp[6][6][6][6][6];
 vector<int> codetransform(1000, -1);
 
-bool isminus(int index, int j)
+inline bool isminus(int a, int b, int c, int d, int e, int index)
 {
-	for (int i = 0; i < (int)offer[j].num.size(); ++i)
-		if (index - offer[j].num[i] < 0)
-			return 0;
-	return 1;
+	return (a - offer[index].num[0] >= 0) &&
+		(b - offer[index].num[1] >= 0) &&
+		(c - offer[index].num[2] >= 0) &&
+		(d - offer[index].num[3] >= 0) &&
+		(e - offer[index].num[4] >= 0);
 }
 
 int main()
 {
-	/*freopen("shopping.in", "r", stdin);
-	freopen("shopping.out", "w", stdout);*/
+	freopen("shopping.in", "r", stdin);
+	freopen("shopping.out", "w", stdout);
 
 	int user_in;
 
@@ -79,8 +80,6 @@ int main()
 
 	cin >> user_in;
 
-	item.resize(user_in);
-
 	for (int i = 0; i < user_in; ++i)
 	{
 		cin >> item[i].code >> item[i].num >> item[i].price;
@@ -88,10 +87,24 @@ int main()
 	}
 	sort(item.begin(), item.end());
 
-	memset(dp, inf, sizeof(dp));
-	dp[0][0][0][0][0] = 0;
+	for (int i = 0; i < 6; ++i)
+		for (int j = 0; j < 6; ++j)
+			for (int k = 0; k < 6; ++k)
+				for (int l = 0; l < 6; ++l)
+					for (int m = 0; m < 6; ++m)
+						dp[i][j][k][l][m] = item[0].price*i + item[1].price*j + item[2].price*k + item[3].price*l + item[4].price*m;
 
+	for (int i = 0; i < 6; ++i)
+		for (int j = 0; j < 6; ++j)
+			for (int k = 0; k < 6; ++k)
+				for (int l = 0; l < 6; ++l)
+					for (int m = 0; m < 6; ++m)
+						for (int n = 0; n < (int)offer.size(); ++n)
+							if (isminus(m, l, k, j, i, n))
+								dp[m][l][k][j][i] = min(dp[m][l][k][j][i],
+									dp[m - offer[n].num[0]][l - offer[n].num[1]][k - offer[n].num[2]][j - offer[n].num[3]][i - offer[n].num[4]] + offer[n].price);
 
+	cout << dp[item[0].num][item[1].num][item[2].num][item[3].num][item[4].num] << endl;
 
 	return 0;
 }
