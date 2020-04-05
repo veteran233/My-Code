@@ -28,12 +28,12 @@ vector<vector<cla_node>> node;
 cla_node king;
 vector<cla_node> knight;
 
-void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
+void bfs(int c, int r, int m, int n, vector<vector<bool>>&joined, int dist[26][30][26][30])
 {
 	queue<cla_node> que;
 	que.push(node[c][r]);
 	joined[c][r] = 1;
-	dist[c][r] = 0;
+	dist[c][r][m][n] = 0;
 
 	static int loop = 1;
 
@@ -47,7 +47,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c + 1][temp_node.r + 2]);
 				joined[temp_node.c + 1][temp_node.r + 2] = 1;
-				dist[temp_node.c + 1][temp_node.r + 2] = loop;
+				dist[temp_node.c + 1][temp_node.r + 2][m][n] = loop;
 			}
 
 		if (temp_node.c + 1 < column && temp_node.r - 2 >= 0)
@@ -55,7 +55,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c + 1][temp_node.r - 2]);
 				joined[temp_node.c + 1][temp_node.r - 2] = 1;
-				dist[temp_node.c + 1][temp_node.r - 2] = loop;
+				dist[temp_node.c + 1][temp_node.r - 2][m][n] = loop;
 			}
 
 		if (temp_node.c - 1 >= 0 && temp_node.r + 2 < row)
@@ -63,7 +63,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c - 1][temp_node.r + 2]);
 				joined[temp_node.c - 1][temp_node.r + 2] = 1;
-				dist[temp_node.c - 1][temp_node.r + 2] = loop;
+				dist[temp_node.c - 1][temp_node.r + 2][m][n] = loop;
 			}
 
 		if (temp_node.c - 1 >= 0 && temp_node.r - 2 >= 0)
@@ -71,7 +71,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c - 1][temp_node.r - 2]);
 				joined[temp_node.c - 1][temp_node.r - 2] = 1;
-				dist[temp_node.c - 1][temp_node.r - 2] = loop;
+				dist[temp_node.c - 1][temp_node.r - 2][m][n] = loop;
 			}
 
 		if (temp_node.c + 2 < column && temp_node.r + 1 < row)
@@ -79,7 +79,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c + 2][temp_node.r + 1]);
 				joined[temp_node.c + 2][temp_node.r + 1] = 1;
-				dist[temp_node.c + 2][temp_node.r + 1] = loop;
+				dist[temp_node.c + 2][temp_node.r + 1][m][n] = loop;
 			}
 
 		if (temp_node.c + 2 < column && temp_node.r - 1 >= 0)
@@ -87,7 +87,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c + 2][temp_node.r - 1]);
 				joined[temp_node.c + 2][temp_node.r - 1] = 1;
-				dist[temp_node.c + 2][temp_node.r - 1] = loop;
+				dist[temp_node.c + 2][temp_node.r - 1][m][n] = loop;
 			}
 
 		if (temp_node.c - 2 >= 0 && temp_node.r + 1 < row)
@@ -95,7 +95,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c - 2][temp_node.r + 1]);
 				joined[temp_node.c - 2][temp_node.r + 1] = 1;
-				dist[temp_node.c - 2][temp_node.r + 1] = loop;
+				dist[temp_node.c - 2][temp_node.r + 1][m][n] = loop;
 			}
 
 		if (temp_node.c - 2 >= 0 && temp_node.r - 1 >= 0)
@@ -103,7 +103,7 @@ void bfs(int c, int r, vector<vector<bool>>&joined, vector<vector<int>>&dist)
 			{
 				que.push(node[temp_node.c - 2][temp_node.r - 1]);
 				joined[temp_node.c - 2][temp_node.r - 1] = 1;
-				dist[temp_node.c - 2][temp_node.r - 1] = loop;
+				dist[temp_node.c - 2][temp_node.r - 1][m][n] = loop;
 			}
 
 		++loop;
@@ -141,23 +141,16 @@ int main()
 	}
 
 	//select a gathering area
-	for (int i = 0; i < column; ++i)
-		for (int j = 0; j < row; ++j)
-		{
-			vector<vector<bool>> joined(column, vector<bool>(row, 0));
-			vector<vector<int>> dist(column, vector<int>(row));
+	int dist[26][30][26][30];//front-target after-source
 
-			bfs(i, j, joined, dist);
-
-			//select a king-gathering area
-
-
-			for (int m = 0; m < column; ++m)
-				for (int n = 0; n < row; ++n)
+	for (int m = 0; m < column; ++m)
+		for (int n = 0; n < row; ++n)
+			for (int i = 0; i < column; ++i)
+				for (int j = 0; j < row; ++j)
 				{
-
+					vector<vector<bool>> joined(column, vector<bool>(row, 0));
+					//bfs(i, j, m, n, joined, dist);
 				}
-		}
 
 	return 0;
 }
