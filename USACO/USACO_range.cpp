@@ -7,26 +7,37 @@ LANG: C++11
 #include <iostream>
 #include <vector>
 #include <string>
+#include <queue>
 
 using namespace std;
 
+class node
+{
+public:
+	int a;
+	int b;
+	node(int x, int y)
+	{
+		a = x;
+		b = y;
+	}
+};
+
 int N;
 vector<string> square;
-vector<vector<unsigned short>> scount;
 vector<unsigned short> ans;
+vector<unsigned short> numsquare;
+vector<vector<bool>> visited;
 
-int garea(const int &a, const int &b, const unsigned short &p)
+bool garea(const int &a, const int &b, const unsigned short &p)
 {
 	if (a + p >= N || b + p >= N)
-		return 2;
+		return 0;
 
 	for (int i = 0; i <= p; ++i)
-		if (square[a + i][b + p] != '1')
-			return 0;
-
-	for (int i = 0; i <= p; ++i)
-		if (square[a + p][b + i] != '1')
-			return 0;
+		for (int j = 0; j <= p; ++j)
+			if (square[a + i][b + j] != '1')
+				return 0;
 
 	return 1;
 }
@@ -39,31 +50,52 @@ int main()
 	cin >> N;
 
 	square.resize(N);
-	scount.resize(N);
-	ans.resize(N*N + 1, 0);
+	numsquare.resize(N);
+	ans.resize(N + 1, 0);
+	visited.resize(N);
 	for (int i = 0; i < N; ++i)
-		scount[i].resize(N, 1);
+		visited[i].resize(N, 0);
+
+	for (int i = 0; i < N; ++i)
+		numsquare[i] = i * i;
 
 	for (int i = 0; i < N; ++i)
 		cin >> square[i];
 
-	for (int k = 0; k < N; ++k)
-		for (int i = 0; i < N; ++i)
-			for (int j = 0; j < N; ++j)
-				if (square[i][j] == '1' && scount[i][j] == k + 1)
-				{
-					int temp = garea(i, j, scount[i][j]);
+	queue<node> que, t_que;
 
-					if (temp == 1)
-					{
-						++scount[i][j];
-						++ans[scount[i][j]];
-					}
-					else if (temp == 2)
-						break;
-				}
+	for (int i = 0; i < N; ++i)
+		for (int j = 0; j < N; ++j)
+			if (square[i][j] == '1')
+				que.push(node(i, j));
 
-	for (int i = 0; i < N*N + 1; ++i)
+	for (int k = N - 1; k >= 1; --k)
+	{
+		while (!que.empty())
+		{
+			node t = que.front();
+			que.pop();
+
+			if (!visited[t.a][t.b] && garea(t.a, t.b, k))
+			{
+				for (int i = 0; i <= k; ++i)
+					for (int j = 0; j <= k; ++j)
+						visited[t.a + i][t.b + j] = 1;
+
+				++ans[k + 1];
+
+				for (int i = k; i >= 2; --i)
+					ans[i] += numsquare[k - i + 2];
+			}
+			else if (!visited[t.a][t.b])
+				t_que.push(node(t.a, t.b));
+		}
+
+		que = t_que;
+		t_que = queue<node>();
+	}
+
+	for (int i = 0; i < N + 1; ++i)
 		if (ans[i] != 0)
 			cout << i << " " << ans[i] << endl;
 
