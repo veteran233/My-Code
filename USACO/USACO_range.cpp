@@ -26,8 +26,7 @@ public:
 int N;
 vector<string> square;
 vector<unsigned short> ans;
-vector<unsigned short> numsquare;
-vector<vector<bool>> visited;
+
 
 bool garea(const int &a, const int &b, const unsigned short &p)
 {
@@ -35,9 +34,12 @@ bool garea(const int &a, const int &b, const unsigned short &p)
 		return 0;
 
 	for (int i = 0; i <= p; ++i)
-		for (int j = 0; j <= p; ++j)
-			if (square[a + i][b + j] != '1')
-				return 0;
+		if (square[a + p][b + i] != '1')
+			return 0;
+
+	for (int i = 0; i <= p; ++i)
+		if (square[a + i][b + p] != '1')
+			return 0;
 
 	return 1;
 }
@@ -50,14 +52,7 @@ int main()
 	cin >> N;
 
 	square.resize(N);
-	numsquare.resize(N);
 	ans.resize(N + 1, 0);
-	visited.resize(N);
-	for (int i = 0; i < N; ++i)
-		visited[i].resize(N, 0);
-
-	for (int i = 0; i < N; ++i)
-		numsquare[i] = i * i;
 
 	for (int i = 0; i < N; ++i)
 		cin >> square[i];
@@ -69,30 +64,18 @@ int main()
 			if (square[i][j] == '1')
 				que.push(node(i, j));
 
-	for (int k = N - 1; k >= 1; --k)
+	while (!que.empty())
 	{
-		while (!que.empty())
+		node t = que.front();
+		que.pop();
+
+		for (int i = 1; i < N; ++i)
 		{
-			node t = que.front();
-			que.pop();
-
-			if (!visited[t.a][t.b] && garea(t.a, t.b, k))
-			{
-				for (int i = 0; i <= k; ++i)
-					for (int j = 0; j <= k; ++j)
-						visited[t.a + i][t.b + j] = 1;
-
-				++ans[k + 1];
-
-				for (int i = k; i >= 2; --i)
-					ans[i] += numsquare[k - i + 2];
-			}
-			else if (!visited[t.a][t.b])
-				t_que.push(node(t.a, t.b));
+			if (garea(t.a, t.b, i))
+				++ans[i + 1];
+			else
+				break;
 		}
-
-		que = t_que;
-		t_que = queue<node>();
 	}
 
 	for (int i = 0; i < N + 1; ++i)
