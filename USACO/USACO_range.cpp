@@ -5,81 +5,49 @@ LANG: C++11
 */
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <string>
-#include <queue>
 
 using namespace std;
 
-class node
-{
-public:
-	int a;
-	int b;
-	node(int x, int y)
-	{
-		a = x;
-		b = y;
-	}
-};
-
-int N;
-vector<string> square;
-vector<unsigned short> ans;
-
-
-bool garea(const int &a, const int &b, const unsigned short &p)
-{
-	if (a + p >= N || b + p >= N)
-		return 0;
-
-	for (int i = 0; i <= p; ++i)
-		if (square[a + p][b + i] != '1')
-			return 0;
-
-	for (int i = 0; i <= p; ++i)
-		if (square[a + i][b + p] != '1')
-			return 0;
-
-	return 1;
-}
-
 int main()
 {
-	/*freopen("range.in", "r", stdin);
-	freopen("range.out", "w", stdout);*/
+	freopen("range.in", "r", stdin);
+	freopen("range.out", "w", stdout);
+
+	int N;
 
 	cin >> N;
 
-	square.resize(N);
-	ans.resize(N + 1, 0);
-
+	vector<string> square(N);
 	for (int i = 0; i < N; ++i)
 		cin >> square[i];
 
-	queue<node> que, t_que;
+	vector<vector<int>> dp(N, vector<int>(N));
+	vector<int> ans(N + 1, 0);
 
 	for (int i = 0; i < N; ++i)
 		for (int j = 0; j < N; ++j)
-			if (square[i][j] == '1')
-				que.push(node(i, j));
-
-	while (!que.empty())
-	{
-		node t = que.front();
-		que.pop();
-
-		for (int i = 1; i < N; ++i)
 		{
-			if (garea(t.a, t.b, i))
-				++ans[i + 1];
-			else
-				break;
-		}
-	}
+			int x = i, y = j;
+			for (; x >= 0 && square[x][j] == '1'; --x);
+			for (; y >= 0 && square[i][y] == '1'; --y);
 
-	for (int i = 0; i < N + 1; ++i)
-		if (ans[i] != 0)
+			int a = min(i - x, j - y);
+			if (i > 0 && j > 0)
+				a = min(a, dp[i - 1][j - 1] + 1);
+
+			dp[i][j] = a;
+		}
+
+	for (int i = 0; i < N; ++i)
+		for (int j = 0; j < N; ++j)
+			for (int k = 2; k <= dp[i][j]; ++k)
+				++ans[k];
+
+	for (int i = 2; i <= N; ++i)
+		if (ans[i])
 			cout << i << " " << ans[i] << endl;
 
 	return 0;
