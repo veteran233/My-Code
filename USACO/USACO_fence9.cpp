@@ -8,50 +8,55 @@ LANG: C++11
 
 using namespace std;
 
-double n, m, p;
+int n, m, p;
 int ans = 0;
 
-double f1(const double &x)
+int f1(const int &x)
 {
-	int r = (int)(m / n * x);
-	if ((double)(n / m * r) == x)
-		return r - 1;
+	int r = m * x;
+	if (r%n == 0)
+		return r / n - 1;
 	else
-		return r;
+		return r / n;
 }
-double f2(const double &x)
+int f2(const int &x)
 {
-	int r = (int)(m * (n - x) / (p - n) + m);
-	if ((double)((m - r) / m * (p - n) + n) == x)
-		return r - 1;
+	int r = m * (p - x);
+	if (r % (p - n) == 0)
+		return r / (p - n) - 1;
 	else
-		return r;
+		return r / (p - n);
+}
+int f22(const int &x)
+{
+	int r = m * (p - x);
+	return r / (p - n);
 }
 int main()
 {
-	/*freopen("fence9.in", "r", stdin);
-	freopen("fence9.out", "w", stdout);*/
+	freopen("fence9.in", "r", stdin);
+	freopen("fence9.out", "w", stdout);
 
 	cin >> n >> m >> p;
 
 	if (n < p)
 	{
-		for (double x = 1; x <= n; ++x)
-			ans += (int)f1(x);
-		for (double x = n + 1; x < p; ++x)
-			ans += (int)f2(x);
+		for (int x = 1; x <= n; ++x)
+			ans += f1(x);
+		for (int x = n + 1; x < p; ++x)
+			ans += f2(x);
 	}
 	else if (n == p)
 	{
-		for (double x = 1; x < p; ++x)
-			ans += (int)f1(x);
+		for (int x = 1; x < p; ++x)
+			ans += f1(x);
 	}
 	else
 	{
-		for (double x = 1; x <= p; ++x)
-			ans += (int)f1(x);
-		for (double x = p + 1; x < n; ++x)
-			ans += (int)f1(x) - (int)f2(x);
+		for (int x = 1; x <= p; ++x)
+			ans += f1(x);
+		for (int x = p + 1; x < n; ++x)
+			ans += f1(x) - f22(x);
 	}
 
 	cout << ans << endl;
