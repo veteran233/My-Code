@@ -93,9 +93,21 @@ private:
 		b.isneg = flag;
 		return b;
 	}
-	BigInt sub(const BigInt* p, BigInt b)const //仅支持（非负数 - 非负数）运算
+	BigInt sub(const BigInt* p, BigInt b)const
 	{
 		BigInt a = *p;
+
+		if (a.isneg ^ b.isneg) //ab异号
+		{
+			b.isneg = !b.isneg;
+			return add(&a, b);
+		}
+		if (a.isneg)
+		{
+			a.isneg = b.isneg = 0;
+			return sub(&b, a);
+		}
+
 		if (a < b) swap(a, b), a.isneg = 1;
 		reverse(a.val.begin(), a.val.end());
 		reverse(b.val.begin(), b.val.end());
