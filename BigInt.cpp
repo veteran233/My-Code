@@ -1,197 +1,101 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
-using namespace std;
 class BigInt
 {
 public:
-	void In()
+	bool operator<(const BigInt& a)const
 	{
-		/*char temp = getchar();
-		while (temp != '\n')
+		if (this->isneg == isneg)
 		{
-			this->n.push_back(temp);
-			temp = getchar();
-		}*/
-		cin >> this->n;
+			if (this->isneg) //负数
+			{
+				if (this->val.size() == a.val.size()) return this->val > a.val;
+				else return this->val.size() > a.val.size();
+			}
+			else //正数
+			{
+				if (this->val.size() == a.val.size()) return this->val < a.val;
+				else return this->val.size() < a.val.size();
+			}
+		}
+		else return this->isneg;
 	}
-	void Print()const
+	bool operator>(const BigInt& a)const
 	{
-		for (int i = 0; i < this->n.size(); i++)
-			printf("%c", this->n[i]);
-		printf("\n");
+		if (this->isneg == isneg)
+		{
+			if (this->isneg) //负数
+			{
+				if (this->val.size() == a.val.size()) return this->val < a.val;
+				else return this->val.size() < a.val.size();
+			}
+			else //正数
+			{
+				if (this->val.size() == a.val.size()) return this->val > a.val;
+				else return this->val.size() > a.val.size();
+			}
+		}
+		else return a.isneg;
 	}
-
-	inline BigInt operator + (const BigInt&a)
-	{
-		return add(this, a);
-	}
-	inline BigInt operator - (BigInt&a)
-	{
-		return sub(this, &a);
-	}
-	inline BigInt operator *(BigInt&a)
-	{
-		return mul(this, a);
-	}
-
+	bool operator==(const BigInt& a)const { return this->val == a.val; }
+	BigInt operator+(const BigInt& a)const { return add(this, a); }
+	BigInt operator-(const BigInt& a)const { return sub(this, a); }
+	friend istream& operator>>(istream& is, BigInt& a) { is >> a.val; if (*a.val.begin() == '-') a.isneg = 1, a.val = a.val.substr(1); return is; }
+	friend ostream& operator<<(ostream& os, const BigInt& a) { if (a.isneg) os << '-' << a.val; else os << a.val; return os; }
 private:
-	string n;
-	BigInt add(BigInt *a, BigInt b)const
+	string val;
+	bool isneg = 0;
+	BigInt add(const BigInt* p, BigInt b)const
 	{
-		BigInt sum;
-		BigInt ta;
-		ta.n = a->n;
+		BigInt a = *p;
+		if (a > b) swap(a, b);
+		reverse(a.val.begin(), a.val.end());
+		reverse(b.val.begin(), b.val.end());
 
-		reverse(a->n.begin(), a->n.end());
-		reverse(b.n.begin(), b.n.end());
+		long long len = a.val.size();
 
-		int max = a->n.size() > b.n.size() ? a->n.size() : b.n.size();
-
-		if (a->n.size() > b.n.size())
-			for (int i = b.n.size(); i < a->n.size(); i++)
-				b.n.push_back('0');
-		else
-			for (int i = a->n.size(); i < b.n.size(); i++)
-				a->n.push_back('0');
-
-		bool sign = 0;
-
-		int i = 0;
-		while (i < max)
+		long long before = 0;
+		for (long long i = 0; i < len; ++i)
 		{
-			if (!sign && a->n[i] + b.n[i] - '0' <= '9')
-			{
-				sum.n.push_back(a->n[i] + b.n[i] - '0');
-				i++;
-				continue;
-			}
-			if (sign && a->n[i] + b.n[i] + sum.n[i] - '0' - '0' <= '9')
-			{
-				sum.n[i] = a->n[i] + b.n[i] + sum.n[i] - '0' - '0';
-				sign = !sign;
-				i++;
-				continue;
-			}
-			if (!sign && a->n[i] + b.n[i] - '0' > '9')
-			{
-				sum.n.push_back(a->n[i] + b.n[i] - '0' - 10);
-				sum.n.push_back('1');
-				sign = !sign;
-				i++;
-				continue;
-			}
-			if (sign && a->n[i] + b.n[i] + sum.n[i] - '0' - '0' > '9')
-			{
-				sum.n[i] = a->n[i] + b.n[i] + sum.n[i] - '0' - '0' - 10;
-				sum.n.push_back('1');
-				i++;
-				continue;
-			}
+			long long temp = 1ll * a.val[i] - '0' + b.val[i] - '0' + before;
+			before = temp / 10;
+
+			b.val[i] = temp % 10 + '0';
 		}
-		reverse(sum.n.begin(), sum.n.end());
-		a->n = ta.n;
-		return sum;
+		for (long long i = len; i < b.val.size(); ++i)
+		{
+			long long temp = 1ll * b.val[i] - '0' + before;
+			before = temp / 10;
+			b.val[i] = temp % 10 + '0';
+			if (before == 0) break;
+		}
+		if (before) b.val.push_back(before + '0');
+		reverse(b.val.begin(), b.val.end());
+		return b;
 	}
-	BigInt sub(BigInt *a, BigInt *b)const
+	BigInt sub(const BigInt* p, BigInt b)const
 	{
-		BigInt sum;
-		BigInt ta, tb;
-		ta.n = a->n;
-		tb.n = b->n;
-		bool sign = 0;
-		bool oper = 0;
+		BigInt a = *p;
+		if (a < b) swap(a, b), a.isneg = 1;
+		reverse(a.val.begin(), a.val.end());
+		reverse(b.val.begin(), b.val.end());
 
-		if (a->n == b->n)
+		long long len = b.val.size();
+
+		long long before = 0;
+		for (long long i = 0; i < len; ++i)
 		{
-			sum.n.push_back('0');
-			return sum;
+			long long temp = 1ll * a.val[i] - b.val[i] + before;
+			if (temp < 0) a.val[i] = 10 + temp + '0', before = -1;
+			else a.val[i] = temp + '0', before = 0;
 		}
-
-		reverse(a->n.begin(), a->n.end());
-		reverse(b->n.begin(), b->n.end());
-
-		if (b->n.size() > a->n.size())
+		for (long long i = len; i < a.val.size(); ++i)
 		{
-			BigInt *temp = a;
-			a = b;
-			b = temp;
-			oper = 1;
+			long long temp = 1ll * a.val[i] - '0' + before;
+			if (temp < 0) a.val[i] = 10 + temp + '0', before = -1;
+			else a.val[i] = temp + '0', before = 0;
+			if (before == 0) break;
 		}
-		else if (b->n.size() == a->n.size())
-			for (int i = 0; i < a->n.size(); i++)
-				if (b->n[i] > a->n[i])
-				{
-					BigInt *temp = a;
-					a = b;
-					b = temp;
-					oper = 1;
-					break;
-				}
-
-		for (int i = b->n.size(); i < a->n.size(); i++)
-			b->n.push_back('0');
-
-		int i = 0;
-		while (i < a->n.size())
-		{
-			if (!sign && a->n[i] - b->n[i] >= 0)
-			{
-				sum.n.push_back(a->n[i] - b->n[i] + '0');
-				i++;
-				continue;
-			}
-			if (sign && a->n[i] - b->n[i] - 1 >= 0)
-			{
-				sum.n.push_back(a->n[i] - b->n[i] - 1 + '0');
-				sign = !sign;
-				i++;
-				continue;
-			}
-			if (!sign && a->n[i] - b->n[i] < 0)
-			{
-				sum.n.push_back(a->n[i] - b->n[i] + 10 + '0');
-				sign = !sign;
-				i++;
-				continue;
-			}
-			if (sign && a->n[i] - b->n[i] - 1 < 0)
-			{
-				sum.n.push_back(a->n[i] - b->n[i] - 1 + 10 + '0');
-				i++;
-				continue;
-			}
-		}
-		if (oper)
-		{
-			sum.n.push_back('-');
-			a->n = tb.n;
-			b->n = ta.n;
-		}
-		else
-		{
-			a->n = ta.n;
-			b->n = tb.n;
-		}
-
-		reverse(sum.n.begin(), sum.n.end());
-		return sum;
-	}
-	BigInt mul(BigInt *a, BigInt b)
-	{
-
+		reverse(a.val.begin(), a.val.end());
+		if (*a.val.begin() == '0') a.val = a.val.substr(1);
+		return a;
 	}
 };
-int main()
-{
-	BigInt a, b, c;
-	while (1)
-	{
-		a.In();
-		b.In();
-		c = a - b;
-		c.Print();
-	}
-
-	return 0;
-}
