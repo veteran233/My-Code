@@ -36,9 +36,10 @@ public:
 		else return a.isneg;
 	}
 	bool operator==(const BigInt& a)const { return this->val == a.val; }
+	void operator=(string s) { this->val = s; }
 	BigInt operator+(const BigInt& a)const { return add(this, a); }
 	BigInt operator-(const BigInt& a)const { return sub(this, a); }
-	friend istream& operator>>(istream& is, BigInt& a) { is >> a.val; if (*a.val.begin() == '-') a.isneg = 1, a.val = a.val.substr(1); return is; }
+	friend istream& operator>>(istream& is, BigInt& a) { a.isneg = 0; is >> a.val; if (*a.val.begin() == '-') a.isneg = 1, a.val = a.val.substr(1); return is; }
 	friend ostream& operator<<(ostream& os, const BigInt& a) { if (a.isneg) os << '-' << a.val; else os << a.val; return os; }
 private:
 	string val;
@@ -46,6 +47,25 @@ private:
 	BigInt add(const BigInt* p, BigInt b)const
 	{
 		BigInt a = *p;
+
+		if (a.isneg ^ b.isneg) //ab异号
+		{
+			if (a.isneg) //a为负
+			{
+				a.isneg = 0;
+				return sub(&b, a);
+			}
+			else //b为负
+			{
+				b.isneg = 0;
+				return sub(&a, b);
+			}
+		}
+
+		//如果同号，flag保存符号
+		bool flag = a.isneg;
+		a.isneg = b.isneg = 0; //这里是为了两个负数的加法运算做出的特殊处理，两个负数的加法等同于两个正数的加法
+
 		if (a > b) swap(a, b);
 		reverse(a.val.begin(), a.val.end());
 		reverse(b.val.begin(), b.val.end());
@@ -68,10 +88,12 @@ private:
 			if (before == 0) break;
 		}
 		if (before) b.val.push_back(before + '0');
+
 		reverse(b.val.begin(), b.val.end());
+		b.isneg = flag;
 		return b;
 	}
-	BigInt sub(const BigInt* p, BigInt b)const
+	BigInt sub(const BigInt* p, BigInt b)const //仅支持（非负数 - 非负数）运算
 	{
 		BigInt a = *p;
 		if (a < b) swap(a, b), a.isneg = 1;
@@ -95,7 +117,13 @@ private:
 			if (before == 0) break;
 		}
 		reverse(a.val.begin(), a.val.end());
-		if (*a.val.begin() == '0') a.val = a.val.substr(1);
+
+		//删除多余的前导零
+		ll i = 0;
+		for (; i < a.val.size() && a.val[i] == '0'; ++i);
+		a.val = a.val.substr(i);
+		if (a.val.empty()) a.val.push_back('0'); //a本身就是0，由于删除了所有的前导0，a为空，此时需要补上一个0
+
 		return a;
 	}
 };
