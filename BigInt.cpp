@@ -1,6 +1,8 @@
 class BigInt
 {
 public:
+	BigInt() {}
+	BigInt(string a) { this->val = a; }
 	bool operator<(const BigInt& a)const
 	{
 		if (this->isneg == isneg)
@@ -67,6 +69,7 @@ private:
 		a.isneg = b.isneg = 0; //这里是为了两个负数的加法运算做出的特殊处理，两个负数的加法等同于两个正数的加法
 
 		if (a > b) swap(a, b);
+
 		reverse(a.val.begin(), a.val.end());
 		reverse(b.val.begin(), b.val.end());
 
@@ -109,6 +112,7 @@ private:
 		}
 
 		if (a < b) swap(a, b), a.isneg = 1;
+		if (a == b) return BigInt("0");
 		reverse(a.val.begin(), a.val.end());
 		reverse(b.val.begin(), b.val.end());
 
@@ -134,7 +138,6 @@ private:
 		ll i = 0;
 		for (; i < a.val.size() && a.val[i] == '0'; ++i);
 		a.val = a.val.substr(i);
-		if (a.val.empty()) a.val.push_back('0'); //a本身就是0，由于删除了所有的前导0，a为空，此时需要补上一个0
 
 		return a;
 	}
