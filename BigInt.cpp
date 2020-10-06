@@ -41,7 +41,17 @@ public:
 	void operator=(string s) { this->val = s; }
 	BigInt operator+(const BigInt& a)const { return add(this, a); }
 	BigInt operator-(const BigInt& a)const { return sub(this, a); }
-	friend istream& operator>>(istream& is, BigInt& a) { a.isneg = 0; is >> a.val; if (*a.val.begin() == '-') a.isneg = 1, a.val = a.val.substr(1); return is; }
+	friend istream& operator>>(istream& is, BigInt& a)
+	{
+		a.isneg = 0;
+		is >> a.val;
+		if (*a.val.begin() == '-') a.isneg = 1, a.val = a.val.substr(1);
+		long long i = 0;
+		for (; i < a.val.size() && a.val[i] == '0'; ++i);
+		a.val = a.val.substr(i);
+		if (a.val.empty())a.val.push_back('0');
+		return is;
+	}
 	friend ostream& operator<<(ostream& os, const BigInt& a) { if (a.isneg) os << '-' << a.val; else os << a.val; return os; }
 private:
 	string val;
@@ -135,7 +145,7 @@ private:
 		reverse(a.val.begin(), a.val.end());
 
 		//删除多余的前导零
-		ll i = 0;
+		long long i = 0;
 		for (; i < a.val.size() && a.val[i] == '0'; ++i);
 		a.val = a.val.substr(i);
 
