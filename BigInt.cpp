@@ -3,7 +3,7 @@ class BigInt
 public:
 	BigInt() {}
 	BigInt(string a) { this->val = a; }
-	bool operator<(const BigInt& a)const
+	bool operator<(const BigInt &a)const
 	{
 		if (this->isneg == isneg)
 		{
@@ -20,7 +20,7 @@ public:
 		}
 		else return this->isneg;
 	}
-	bool operator>(const BigInt& a)const
+	bool operator>(const BigInt &a)const
 	{
 		if (this->isneg == isneg)
 		{
@@ -37,11 +37,12 @@ public:
 		}
 		else return a.isneg;
 	}
-	bool operator==(const BigInt& a)const { return this->val == a.val; }
+	bool operator==(const BigInt &a)const { return this->val == a.val; }
 	void operator=(string s) { this->val = s; }
-	BigInt operator+(const BigInt& a)const { return add(this, a); }
-	BigInt operator-(const BigInt& a)const { return sub(this, a); }
-	friend istream& operator>>(istream& is, BigInt& a)
+	BigInt operator+(const BigInt &a)const { return add(this, a); }
+	BigInt operator-(const BigInt &a)const { return sub(this, a); }
+	ll operator%(ll mod)const { return getmod(this, mod); }
+	friend istream &operator>>(istream &is, BigInt &a)
 	{
 		a.isneg = 0;
 		is >> a.val;
@@ -49,14 +50,14 @@ public:
 		long long i = 0;
 		for (; i < a.val.size() && a.val[i] == '0'; ++i);
 		a.val = a.val.substr(i);
-		if (a.val.empty())a.val.push_back('0');
+		if (a.val.empty()) a.val.push_back('0');
 		return is;
 	}
-	friend ostream& operator<<(ostream& os, const BigInt& a) { if (a.isneg) os << '-' << a.val; else os << a.val; return os; }
+	friend ostream &operator<<(ostream &os, const BigInt &a) { if (a.isneg) os << '-' << a.val; else os << a.val; return os; }
 private:
 	string val;
 	bool isneg = 0;
-	BigInt add(const BigInt* p, BigInt b)const
+	BigInt add(const BigInt *p, BigInt b)const
 	{
 		BigInt a = *p;
 
@@ -106,7 +107,7 @@ private:
 		b.isneg = flag;
 		return b;
 	}
-	BigInt sub(const BigInt* p, BigInt b)const
+	BigInt sub(const BigInt *p, BigInt b)const
 	{
 		BigInt a = *p;
 
@@ -150,5 +151,16 @@ private:
 		a.val = a.val.substr(i);
 
 		return a;
+	}
+	ll getmod(const BigInt *p, ll mod)const
+	{
+		BigInt a = *p;
+		ll res = 0;
+		for (auto &i : a.val)
+		{
+			res = (res * 10) % mod;
+			res = (res + (1ll * i - '0')) % mod;
+		}
+		return res;
 	}
 };
